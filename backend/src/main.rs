@@ -17,7 +17,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app_state = AppState {
         db_client: shared_client.clone();
-    }
+    };
 
     let app = Router::new().
     route("/", get(root_handler))
