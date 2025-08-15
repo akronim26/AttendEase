@@ -14,6 +14,7 @@ AttendEase is a full-stack web application for streamlined attendance management
   - [Frontend Setup](#frontend-setup)
 - [Development](#development)
 - [Environment Variables](#environment-variables)
+- [API Endpoints](#api-endpoints)
 - [Scripts](#scripts)
 - [Contributing](#contributing)
 - [License](#license)
@@ -23,10 +24,11 @@ AttendEase is a full-stack web application for streamlined attendance management
 ## Features
 
 - Modern, responsive frontend (React + TypeScript + Tailwind CSS)
-- High-performance backend API (Rust)
+- High-performance backend API (Rust + Axum + MongoDB)
 - Environment-based configuration
 - Easy local development and build
 - Linting and formatting for code quality
+- Validation for student data
 
 ---
 
@@ -36,13 +38,19 @@ AttendEase is a full-stack web application for streamlined attendance management
 AttendEase/
   backend/    # Rust backend API
     src/
+      models/
+        student_model.rs
+      routes/
+        student_route.rs
+      db.rs
+      main.rs
+      state.rs
+    .env
     Cargo.toml
-    ...
   frontend/   # React frontend
     src/
     package.json
     tailwind.config.js
-    ...
 ```
 
 ---
@@ -54,7 +62,7 @@ AttendEase/
 - [Node.js](https://nodejs.org/) (v16+ recommended)
 - [npm](https://www.npmjs.com/) (comes with Node.js)
 - [Rust](https://www.rust-lang.org/tools/install)
-- [MongoDB](https://www.mongodb.com/) (if required by backend)
+- [MongoDB](https://www.mongodb.com/)
 - (Windows only) [Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
 
 ---
@@ -109,10 +117,17 @@ AttendEase/
 - **Backend:**
   - Place a `.env` file in `backend/` with variables like:
     ```env
-    MONGO_URI=mongodb://localhost:27017/your-db
+    MONGO_URI=<Your MongoDB URI>
     ```
 - **Frontend:**
   - Place environment variables in `.env` files as needed (see Vite docs)
+
+---
+
+## API Endpoints
+
+- `GET /`: Root endpoint, returns a message indicating the backend is running.
+- `POST /students`: Adds a new student to the database.
 
 ---
 

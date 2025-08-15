@@ -1,14 +1,27 @@
+//! This is the main entry point of the application.
+
 mod db;
 mod state;
+mod routes {
+    pub mod student_route;
+}
+mod models {
+    pub mod student_model;
+}
 
-// The socket addr is used for creating a combination of IP and port
-// The axum is used for routing where the extract is used for injecting the app state into the route
-use crate::state::AppState;
-use axum::{Router, extract::Extension, routing::get};
+use axum::{Extension, Router, routing::{get, post}};
 use dotenvy::dotenv;
 use std::{net::SocketAddr, sync::Arc};
 use tokio::net::TcpListener;
+use crate::routes::student_route::add_student;
 
+use crate::state::AppState;
+
+/// The main function of the application.
+///
+/// This function initializes the application by loading the environment variables,
+/// connecting to the database, creating the application state, and starting the
+/// HTTP server.
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().expect(".env does not exist");
@@ -22,18 +35,23 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .route("/", get(root_handler))
-        .layer(Extension(app_state)); // inject the shared state
+        .route("/students", post(add_student))
+        .layer(Extension(app_state)); // Injects the application state into all routes.
 
-    let address = SocketAddr::from(([127, 0, 0, 1], 3000)); // explicitly defining the port and IP address
-    let listener = TcpListener::bind(address).await?;
+    let address = SocketAddr::from(([127, 0, 0, 1], 3000)); // Defines the IP address and port explicitly.
+    let listener = TcpListener::bind(address).await?; // Establishes the TCP listener to handle incoming requests.
     println!("listening on {}", address);
-    axum::serve(listener, app).await?;
+
+    axum::serve(listener, app).await?; // Combines the router and the listener, and starts serving HTTP requests.
 
     Ok(())
 }
 
-async fn root_handler(Extension(state): Extension<AppState>) -> &'static str {
-    // Accessing the db_client to show the compiler it's being used.
+/// The root handler.
+///
+/// This function is the handler for the root route of the application. It returns a
+/// simple string to indicate that the backend is running.
+async fn root_handler(state: Extension<AppState>) -> &'static str {
     let _ = &state.db_client;
     "Attendance portal backend is running"
 }

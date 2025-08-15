@@ -1,28 +1,2 @@
-# Rust build
-/target/
-**/target/
-
-# Rust package manager
-Cargo.lock
-
-# IDEs and editors
-.idea/
-.vscode/
-*.swp
-
-# Environment variables
+target/
 .env
-.env.*
-
-# Logs
-*.log
-
-# Byproducts
-*.rs.bk
-
-# Node/npm (if any frontend code sneaks in)
-node_modules/
-
-# Misc
-.DS_Store
-Thumbs.db
