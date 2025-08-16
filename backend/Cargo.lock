@@ -124,6 +124,7 @@ dependencies = [
  "dotenvy",
  "mongodb",
  "serde",
+ "serde_json",
  "tokio",
 ]
 

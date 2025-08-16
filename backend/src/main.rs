@@ -8,13 +8,13 @@ mod routes {
 mod models {
     pub mod student_model;
 }
+mod error;
 
 use axum::{Extension, Router, routing::{get, post}};
 use dotenvy::dotenv;
 use std::{net::SocketAddr, sync::Arc};
 use tokio::net::TcpListener;
 use crate::routes::student_route::add_student;
-
 use crate::state::AppState;
 
 /// The main function of the application.
