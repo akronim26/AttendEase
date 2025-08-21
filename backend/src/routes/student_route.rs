@@ -6,8 +6,6 @@ use crate::state::AppState;
 use axum::{Extension, Json};
 use mongodb::Collection;
 
-/// Adds a new student to the database.
-///
 /// This function takes the application state and a JSON payload of a student as input,
 /// and inserts the student into the database. If the insertion is successful, the
 /// newly inserted student with their ID is returned.
@@ -30,7 +28,7 @@ use mongodb::Collection;
 /// * There is an error inserting the student into the database (`ErrorType::ServerError`).
 pub async fn add_student(
     state: Extension<AppState>,
-    student: Json<Student>,
+    mut student: Json<Student>,
 ) -> Result<Json<Student>, ErrorType> {
     let collection: Collection<Student> = state
         .db_client
@@ -41,10 +39,10 @@ pub async fn add_student(
     // The actual `Student` value is stored in the first (and only) field of the `Json` wrapper,
     // so we access it with `.0`.
     let mut new_student = student.0.clone();
-    new_student.id = None;
+    student.id = None;
 
     // Check that roll number is positive
-    if let Ok(roll_num) = new_student.roll_number.parse::<i64>() {
+    if let Ok(roll_num) = student.roll_number.parse::<i64>() {
         if roll_num <= 0 {
             println!("Roll number must be positive");
             return Err(ErrorType::NegativeRollNumber(
@@ -57,15 +55,15 @@ pub async fn add_student(
 
     // Check that email does not already exist
     let email_exists = collection
-        .find_one(mongodb::bson::doc! { "email": &new_student.email })
-        .await
-        .map_err(|err| {
-            println!("Error checking for existing email: {:?}", err);
-            ErrorType::ServerError("ServerError".to_string())
-        })?;
-
+    .find_one(mongodb::bson::doc! { "email": &student.email })
+    .await
+    .map_err(|err| {
+        println!("Error checking for existing email: {:?}", err);
+        ErrorType::ServerError("ServerError".to_string())
+    })?;
+        
     if email_exists.is_some() {
-        println!("Email already exists: {}", &new_student.email);
+        println!("Email already exists: {}", &student.email);
         return Err(ErrorType::EmailAlreadyExists(
             "Student with email already exists".to_string(),
         ));
@@ -74,9 +72,8 @@ pub async fn add_student(
     match collection.insert_one(&new_student).await {
         Ok(insert_result) => {
             println!("Successfully inserted student");
-            let mut inserted_student = new_student.clone();
-            inserted_student.id = insert_result.inserted_id.as_object_id();
-            Ok(Json(inserted_student))
+            new_student.id = insert_result.inserted_id.as_object_id();
+            Ok(Json(new_student))
         }
         Err(err) => {
             println!("Error inserting student: {:?}", err);

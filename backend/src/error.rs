@@ -13,6 +13,8 @@ pub enum ErrorType {
     EmailAlreadyExists(String),
     /// Returned when trying to create a student with a negative roll number.
     NegativeRollNumber(String),
+    /// Returned when trying to mark attendance with empty subject.
+    SubjectEmpty(String),
     /// Returned for generic server errors.
     ServerError(String),
 }
@@ -22,6 +24,7 @@ impl IntoResponse for ErrorType {
         let (status, error_message) = match self {
             ErrorType::EmailAlreadyExists(msg) => (StatusCode::CONFLICT, msg),
             ErrorType::NegativeRollNumber(msg) => (StatusCode::BAD_REQUEST, msg),
+            ErrorType::SubjectEmpty(msg) => (StatusCode::BAD_REQUEST, msg),
             ErrorType::ServerError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
         };
 

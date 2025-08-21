@@ -3,22 +3,25 @@
 mod db;
 mod state;
 mod routes {
+    pub mod attendance_route;
     pub mod student_route;
 }
 mod models {
+    pub mod attendance_model;
     pub mod student_model;
 }
 mod error;
 
-use axum::{Extension, Router, routing::{get, post}};
+use crate::routes::{attendance_route::mark_attendance, student_route::add_student};
+use crate::state::AppState;
+use axum::{
+    Extension, Router,
+    routing::{get, post},
+};
 use dotenvy::dotenv;
 use std::{net::SocketAddr, sync::Arc};
 use tokio::net::TcpListener;
-use crate::routes::student_route::add_student;
-use crate::state::AppState;
 
-/// The main function of the application.
-///
 /// This function initializes the application by loading the environment variables,
 /// connecting to the database, creating the application state, and starting the
 /// HTTP server.
@@ -36,6 +39,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
         .route("/", get(root_handler))
         .route("/students", post(add_student))
+        .route("/attendance", post(mark_attendance))
         .layer(Extension(app_state)); // Injects the application state into all routes.
 
     let address = SocketAddr::from(([127, 0, 0, 1], 3000)); // Defines the IP address and port explicitly.
@@ -47,10 +51,12 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// The root handler.
-///
 /// This function is the handler for the root route of the application. It returns a
 /// simple string to indicate that the backend is running.
+///
+/// # Returns
+///
+/// A static string message 'Attendance portal backend is running'.
 async fn root_handler(state: Extension<AppState>) -> &'static str {
     let _ = &state.db_client;
     "Attendance portal backend is running"

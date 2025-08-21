@@ -3,8 +3,6 @@
 use mongodb::{Client, options::ClientOptions};
 use std::env;
 
-/// Establishes a connection to the MongoDB database.
-///
 /// This function reads the MongoDB URI from the `MONGO_URI` environment variable,
 /// parses it, and creates a new MongoDB client.
 ///
@@ -17,7 +15,7 @@ pub async fn connect_to_database() -> Result<Client, mongodb::error::Error> {
     // Parse the MongoDB URI to obtain client options.
     let client_options = ClientOptions::parse(&db_uri).await?;
 
-    // Create a new MongoDB client using the specified client options.
+    // Connects lazily, actual connection happens on first DB use.
     let client = Client::with_options(client_options)?;
 
     Ok(client)
