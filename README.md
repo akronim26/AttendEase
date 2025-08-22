@@ -1,34 +1,40 @@
 # AttendEase
 
-AttendEase is a full-stack web application for streamlined attendance management. It features a high-performance Rust backend and a modern, responsive React frontend styled with Tailwind CSS.
+AttendEase is a full-stack web application designed for streamlined attendance management. It features a high-performance Rust backend using the Axum framework and a modern, responsive React frontend built with Vite and styled with Tailwind CSS.
 
 ---
 
 ## Table of Contents
 
+- [Tech Stack](#tech-stack)
 - [Features](#features)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Backend Setup](#backend-setup)
   - [Frontend Setup](#frontend-setup)
-- [Development](#development)
 - [Environment Variables](#environment-variables)
 - [API Endpoints](#api-endpoints)
-- [Scripts](#scripts)
-- [Contributing](#contributing)
-- [License](#license)
+- [Available Scripts](#available-scripts)
+
+---
+
+## Tech Stack
+
+- **Backend**: Rust, Axum, Tokio, MongoDB
+- **Frontend**: React, TypeScript, Vite, Tailwind CSS
+- **Database**: MongoDB
 
 ---
 
 ## Features
 
-- Modern, responsive frontend (React + TypeScript + Tailwind CSS)
-- High-performance backend API (Rust + Axum + MongoDB)
-- Environment-based configuration
-- Easy local development and build
-- Linting and formatting for code quality
-- Validation for student data
+- **Full-Stack Application**: A complete solution with a separate frontend and backend.
+- **High-Performance Backend**: Built with Rust and Axum for speed and reliability.
+- **Modern Frontend**: A responsive and interactive user interface built with React and TypeScript.
+- **Asynchronous Operations**: Leverages Tokio for non-blocking I/O in the backend.
+- **Database Integration**: Uses MongoDB for flexible and scalable data storage.
+- **Clear Project Structure**: Organized into distinct `frontend` and `backend` modules.
 
 ---
 
@@ -36,21 +42,18 @@ AttendEase is a full-stack web application for streamlined attendance management
 
 ```
 AttendEase/
-  backend/    # Rust backend API
-    src/
-      models/
-        student_model.rs
-      routes/
-        student_route.rs
-      db.rs
-      main.rs
-      state.rs
-    .env
-    Cargo.toml
-  frontend/   # React frontend
-    src/
-    package.json
-    tailwind.config.js
+├── backend/        # Rust backend API
+│   ├── src/
+│   │   ├── models/ # Data models (Student, Teacher, Attendance)
+│   │   ├── routes/ # API route handlers
+│   │   ├── db.rs   # Database connection logic
+│   │   └── main.rs # Application entry point
+│   ├── .env        # Environment variables (requires MONGO_URI)
+│   └── Cargo.toml  # Rust dependencies
+└── frontend/       # React frontend application
+    ├── src/        # Source files (TSX, CSS)
+    ├── package.json  # Frontend dependencies and scripts
+    └── vite.config.ts # Vite configuration
 ```
 
 ---
@@ -59,105 +62,77 @@ AttendEase/
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v16+ recommended)
-- [npm](https://www.npmjs.com/) (comes with Node.js)
-- [Rust](https://www.rust-lang.org/tools/install)
-- [MongoDB](https://www.mongodb.com/)
-- (Windows only) [Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+- [Node.js](https://nodejs.org/) (v18+ recommended)
+- [Rust](https://www.rust-lang.org/tools/install) and Cargo
+- A running [MongoDB](https://www.mongodb.com/) instance
 
 ---
 
 ### Backend Setup (Rust)
 
-1. **Install dependencies:**
-   ```sh
-   cd backend
-   cargo build
-   ```
-2. **Environment:**
-   - Create a `.env` file in `backend/` with your environment variables (e.g., `MONGO_URI`).
-3. **Run the backend:**
-   ```sh
-   cargo run
-   ```
+1.  **Navigate to the backend directory:**
+    ```sh
+    cd backend
+    ```
+2.  **Create the environment file:**
+    Create a `.env` file in the `backend` directory and add your MongoDB connection string:
+    ```env
+    MONGO_URI="your_mongodb_connection_string"
+    ```
+3.  **Build and run the server:**
+    ```sh
+    cargo run
+    ```
+    The backend server will start on `http://127.0.0.1:3000`.
 
 ---
 
-### Frontend Setup (React + Vite + Tailwind)
+### Frontend Setup (React)
 
-1. **Install dependencies:**
-   ```sh
-   cd frontend
-   npm install
-   ```
-2. **Run the frontend in development mode:**
-   ```sh
-   npm run dev
-   ```
-3. **Open your browser:**
-   - Visit the URL shown in the terminal (usually `http://localhost:5173`)
-
----
-
-## Development
-
-- **Backend:**
-  - Rust code in `backend/src/`
-  - Use `cargo run` for development
-- **Frontend:**
-  - React code in `frontend/src/`
-  - Use `npm run dev` for hot-reloading
-- **Linting/Formatting:**
-  - Frontend: `npm run lint`, `npm run format`
+1.  **Navigate to the frontend directory:**
+    ```sh
+    cd frontend
+    ```
+2.  **Install dependencies:**
+    ```sh
+    npm install
+    ```
+3.  **Run the development server:**
+    ```sh
+    npm run dev
+    ```
+    The frontend application will be available at `http://localhost:5173` (or the next available port).
 
 ---
 
 ## Environment Variables
 
-- **Backend:**
-  - Place a `.env` file in `backend/` with variables like:
-    ```env
-    MONGO_URI=<Your MongoDB URI>
-    ```
-- **Frontend:**
-  - Place environment variables in `.env` files as needed (see Vite docs)
+-   **`MONGO_URI`**: **(Required)** The connection string for the MongoDB database. This is used by the backend to connect to your database instance. It should be placed in the `backend/.env` file.
 
 ---
 
 ## API Endpoints
 
-- `GET /`: Root endpoint, returns a message indicating the backend is running.
-- `POST /students`: Adds a new student to the database.
+The backend exposes the following REST API endpoints:
+
+-   `GET /`: Root endpoint to confirm the backend is running.
+-   `POST /students/add`: Adds a new student.
+-   `POST /teacher/add`: Adds a new teacher.
+-   `POST /attendance/mark`: Marks attendance for a student.
 
 ---
 
-## Scripts
+## Available Scripts
 
-### Frontend
+### Frontend (`/frontend`)
 
-- `npm run dev` — Start development server
-- `npm run build` — Build for production
-- `npm run preview` — Preview production build
-- `npm run lint` — Lint code
-- `npm run format` — Format code
+-   `npm run dev`: Starts the Vite development server with hot reloading.
+-   `npm run build`: Compiles and bundles the app for production.
+-   `npm run lint`: Lints the TypeScript and JavaScript files.
+-   `npm run preview`: Serves the production build locally for previewing.
 
-### Backend
+### Backend (`/backend`)
 
-- `cargo run` — Run the backend server
-- `cargo build` — Build the backend
-
----
-
-## Contributing
-
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Open a Pull Request
-
----
-
-## License
-
-This project is licensed under the MIT License.
+-   `cargo run`: Compiles and runs the backend server.
+-   `cargo build`: Compiles the backend without running it.
+-   `cargo check`: Checks the backend code for errors without compiling.
