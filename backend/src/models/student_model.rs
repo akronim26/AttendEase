@@ -17,5 +17,5 @@ pub struct Student {
     /// The email of the student.
     pub email: String,
     /// The roll number of the student.
-    pub roll_number: String,
+    pub roll_number: i32,
 }

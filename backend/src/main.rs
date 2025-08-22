@@ -5,14 +5,16 @@ mod state;
 mod routes {
     pub mod attendance_route;
     pub mod student_route;
+    pub mod teacher_route;
 }
 mod models {
     pub mod attendance_model;
     pub mod student_model;
+    pub mod teacher_model;
 }
 mod error;
 
-use crate::routes::{attendance_route::mark_attendance, student_route::add_student};
+use crate::routes::{attendance_route::mark_attendance, student_route::add_student, teacher_route::add_teacher};
 use crate::state::AppState;
 use axum::{
     Extension, Router,
@@ -38,8 +40,9 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .route("/", get(root_handler))
-        .route("/students", post(add_student))
-        .route("/attendance", post(mark_attendance))
+        .route("/students/add", post(add_student))
+        .route("/attendance/mark", post(mark_attendance))
+        .route("/teacher/add", post(add_teacher))
         .layer(Extension(app_state)); // Injects the application state into all routes.
 
     let address = SocketAddr::from(([127, 0, 0, 1], 3000)); // Defines the IP address and port explicitly.

@@ -42,15 +42,11 @@ pub async fn add_student(
     student.id = None;
 
     // Check that roll number is positive
-    if let Ok(roll_num) = student.roll_number.parse::<i64>() {
-        if roll_num <= 0 {
-            println!("Roll number must be positive");
-            return Err(ErrorType::NegativeRollNumber(
-                "Roll number must be positive".to_string(),
-            ));
-        }
-    } else {
-        return Err(ErrorType::ServerError("ServerError".to_string()));
+    if student.roll_number <= 0 {
+        println!("Roll number must be positive");
+        return Err(ErrorType::NegativeRollNumber(
+            "Roll number must be positive".to_string(),
+        ));
     }
 
     // Check that email does not already exist
@@ -71,7 +67,6 @@ pub async fn add_student(
 
     match collection.insert_one(&new_student).await {
         Ok(insert_result) => {
-            println!("Successfully inserted student");
             new_student.id = insert_result.inserted_id.as_object_id();
             Ok(Json(new_student))
         }

@@ -13,7 +13,7 @@ pub struct Attendance {
     // The reference to Student
     pub student_id: ObjectId,
     // The time of attendance
-    // The line below tells the serde to deserialise the DateTime
+    // The line below tells the serde how to deserialise the DateTime
     #[serde(with = "chrono::serde::ts_seconds")]
     pub time: DateTime<Utc>,
     // The subject of the attendance

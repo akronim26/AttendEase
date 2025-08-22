@@ -44,6 +44,15 @@ pub async fn mark_attendance(
         ));
     }
 
+    // Check that email exists in the curriculum
+    if !matches!(new_details.subject.as_str(), "Maths" | "Physics" | "Chemistry" | "CS") {
+        return Err(ErrorType::SubjectDoesNotExist(
+            "Subject does not exists in the curriculum".to_string(),
+        ));
+    } else {
+        println!("The subject is in the curriculum");
+    }
+
     match collection.insert_one(&new_details).await {
         Ok(insert_result) => {
             new_details.id = insert_result.inserted_id.as_object_id();
