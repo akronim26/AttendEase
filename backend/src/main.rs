@@ -14,7 +14,7 @@ mod models {
 }
 mod error;
 
-use crate::routes::{attendance_route::mark_attendance, student_route::add_student, teacher_route::add_teacher};
+use crate::routes::{attendance_route::mark_attendance, student_route::{add_student, get_student}, teacher_route::add_teacher};
 use crate::state::AppState;
 use axum::{
     Extension, Router,
@@ -41,6 +41,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
         .route("/", get(root_handler))
         .route("/students/add", post(add_student))
+        .route("/students/{student_id}", get(get_student))
         .route("/attendance/mark", post(mark_attendance))
         .route("/teacher/add", post(add_teacher))
         .layer(Extension(app_state)); // Injects the application state into all routes.
@@ -60,7 +61,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// # Returns
 ///
 /// A static string message 'Attendance portal backend is running'.
-async fn root_handler(state: Extension<AppState>) -> &'static str {
+async fn root_handler(Extension(state): Extension<AppState>) -> &'static str {
     let _ = &state.db_client;
     "Attendance portal backend is running"
 }

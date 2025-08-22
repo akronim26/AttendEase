@@ -27,7 +27,7 @@ use mongodb::Collection;
 /// * The subject is empty (`ErrorType::SubjectEmpty`).
 /// * There is an error inserting the student into the database (`ErrorType::ServerError`).
 pub async fn add_teacher(
-    state: Extension<AppState>,
+    Extension(state): Extension<AppState>,
     mut teacher: Json<Teacher>,
 ) -> Result<Json<Teacher>, ErrorType> {
     let collection: Collection<Teacher> = state

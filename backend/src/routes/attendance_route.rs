@@ -24,10 +24,10 @@ use mongodb::Collection;
 /// # Errors
 ///
 /// This function will return an `ErrorType` if:
-/// * The subject is empty (`ErrorType::SubjectEmpty`).
+/// * The subject does not exist (`ErrorType::DoesNotExist`).
 /// * There is an error marking the attendance (`ErrorType::ServerError`).
 pub async fn mark_attendance(
-    state: Extension<AppState>,
+    Extension(state): Extension<AppState>,
     mut attendance_details: Json<Attendance>,
 ) -> Result<Json<Attendance>, ErrorType> {
     let collection: Collection<Attendance> =
@@ -39,14 +39,14 @@ pub async fn mark_attendance(
 
     if new_details.subject.is_empty() {
         println!("Subject cannot be empty");
-        return Err(ErrorType::SubjectEmpty(
+        return Err(ErrorType::DoesNotExist(
             "Subject cannot be empty".to_string(),
         ));
     }
 
-    // Check that email exists in the curriculum
+    // Check that email exists in the
     if !matches!(new_details.subject.as_str(), "Maths" | "Physics" | "Chemistry" | "CS") {
-        return Err(ErrorType::SubjectDoesNotExist(
+        return Err(ErrorType::DoesNotExist(
             "Subject does not exists in the curriculum".to_string(),
         ));
     } else {
