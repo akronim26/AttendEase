@@ -216,6 +216,8 @@ The backend exposes the following REST API endpoints:
     ```json
     {
       "student_id": "student_object_id",
+      "time": 1724437035
+      "subject": "Maths"
       "class": "class_object_id"
     }
     ```
