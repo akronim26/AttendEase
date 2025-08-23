@@ -24,7 +24,7 @@ use mongodb::{Collection, bson::oid::ObjectId};
 ///
 /// This function will return an `ErrorType` if:
 /// * The roll number is not a positive number (`ErrorType::NegativeRollNumber`).
-/// * The email already exists in the database (`ErrorType::EmailAlreadyExists`).
+/// * The email already exists in the database (`ErrorType::AlreadyExists`).
 /// * There is an error inserting the student into the database (`ErrorType::ServerError`).
 pub async fn add_student(
     state: Extension<AppState>,
@@ -44,9 +44,7 @@ pub async fn add_student(
     // Check that roll number is positive
     if student.roll_number <= 0 {
         println!("Roll number must be positive");
-        return Err(ErrorType::NegativeRollNumber(
-            "Roll number must be positive".to_string(),
-        ));
+        ErrorType::NegativeRollNumber("Roll number must be positive".to_string());
     }
 
     // Check that email does not already exist
@@ -60,9 +58,7 @@ pub async fn add_student(
 
     if email_exists.is_some() {
         println!("Email already exists: {}", &student.email);
-        return Err(ErrorType::EmailAlreadyExists(
-            "Student with email already exists".to_string(),
-        ));
+        ErrorType::AlreadyExists("Student with email already exists".to_string());
     }
 
     match collection.insert_one(&new_student).await {
@@ -95,7 +91,7 @@ pub async fn add_student(
 ///
 /// This function will return an `ErrorType` if:
 /// * The student record is not found (`ErrorType::DoesNotExist`).
-/// * There is an error inserting the student into the database (`ErrorType::ServerError`).
+/// * There is an error searching the student in the database (`ErrorType::ServerError`).
 pub async fn get_student(
     Extension(state): Extension<AppState>,
     Path(student_id): Path<ObjectId>,

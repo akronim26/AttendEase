@@ -24,7 +24,7 @@ AttendEase is a full-stack web application designed for streamlined attendance m
 ## Tech Stack
 
 - **Backend**: Rust, Axum, Tokio, MongoDB
-- **Frontend**: React, TypeScript, Tailwind CSS
+- **Frontend**: React, TypeScript, Tailwind CSS, Vite
 - **Database**: MongoDB
 
 ---
@@ -37,7 +37,8 @@ AttendEase is a full-stack web application designed for streamlined attendance m
 - **Asynchronous Operations**: Leverages Tokio for non-blocking I/O
 - **MongoDB Integration**: Flexible and scalable NoSQL database storage
 - **Comprehensive Error Handling**: Custom error types with proper HTTP status codes
-- **Data Validation**: Input validation for roll numbers, emails, and subjects
+- **Data Validation**: Input validation for roll numbers, emails, and class assignments
+- **Real-time Attendance Tracking**: Mark attendance with automatic timestamps
 
 ---
 
@@ -50,10 +51,12 @@ AttendEase/
 │   │   ├── models/            # Data models
 │   │   │   ├── student_model.rs    # Student data structure
 │   │   │   ├── teacher_model.rs    # Teacher data structure
+│   │   │   ├── class_model.rs      # Class/subject data structure
 │   │   │   └── attendance_model.rs # Attendance records
 │   │   ├── routes/            # API route handlers
 │   │   │   ├── student_route.rs    # Student CRUD operations
 │   │   │   ├── teacher_route.rs    # Teacher management
+│   │   │   ├── class_route.rs      # Class management
 │   │   │   └── attendance_route.rs # Attendance tracking
 │   │   ├── db.rs              # MongoDB connection logic
 │   │   ├── error.rs            # Custom error types and handling
@@ -63,7 +66,7 @@ AttendEase/
 │   └── .env                    # Environment variables (requires MONGO_URI)
 └── frontend/                   # React frontend application
     ├── src/
-    │   |── App.tsx             # Main application
+    │   ├── App.tsx             # Main application component
     │   ├── main.tsx            # Application entry point
     │   ├── App.css             # Application styles
     │   └── index.css           # Global styles
@@ -177,12 +180,33 @@ The backend exposes the following REST API endpoints:
     {
       "name": "Jane Smith",
       "email": "jane.smith@example.com",
-      "subject": "Mathematics"
+      "class": "class_object_id"
     }
     ```
   - **Response**:
     - **201 Created**: Returns the created teacher with generated ID
     - **409 Conflict**: If email already exists
+    - **404 Not Found**: If the assigned class doesn't exist
+    - **500 Internal Server Error**: Server-side errors
+
+### Classes
+
+- **`GET /classes`**: Retrieves all classes.
+
+  - **Response**:
+    - **200 OK**: Returns an array of all classes
+    - **500 Internal Server Error**: Server-side errors
+
+- **`POST /classes/add`**: Adds a new class.
+  - **Request Body**:
+    ```json
+    {
+      "name": "Mathematics"
+    }
+    ```
+  - **Response**:
+    - **201 Created**: Returns the created class with generated ID
+    - **409 Conflict**: If class name already exists
     - **500 Internal Server Error**: Server-side errors
 
 ### Attendance
@@ -192,13 +216,12 @@ The backend exposes the following REST API endpoints:
     ```json
     {
       "student_id": "student_object_id",
-      "subject": "Maths"
+      "class": "class_object_id"
     }
     ```
   - **Response**:
     - **201 Created**: Returns the attendance record with timestamp
-    - **400 Bad Request**: If subject is empty
-    - **404 Not Found**: If subject is not in curriculum
+    - **404 Not Found**: If student or class doesn't exist
     - **500 Internal Server Error**: Server-side errors
 
 ---
@@ -219,3 +242,11 @@ The backend exposes the following REST API endpoints:
 - **`cargo check`**: Checks the backend code for errors without compiling
 
 ---
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).

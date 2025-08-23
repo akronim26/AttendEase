@@ -1,7 +1,7 @@
 //! This module defines the `Student` model.
 
-use serde::{Deserialize, Serialize};
 use mongodb::bson::oid::ObjectId;
+use serde::{Deserialize, Serialize};
 
 /// This struct is used to model the data of a student, including their ID, name,
 /// email, and roll number.
@@ -12,10 +12,10 @@ pub struct Student {
     /// convention), and to skip this field when serializing if it is `None`.
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
-    /// The name of the student.
+    /// The name of the student
     pub name: String,
-    /// The email of the student.
+    /// The email of the student
     pub email: String,
-    /// The roll number of the student.
+    /// The roll number of the student
     pub roll_number: i32,
 }
