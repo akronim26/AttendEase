@@ -175,6 +175,7 @@ The backend exposes the following REST API endpoints:
 ### Teachers
 
 - **`POST /teacher/add`**: Adds a new teacher.
+
   - **Request Body**:
     ```json
     {
@@ -187,6 +188,12 @@ The backend exposes the following REST API endpoints:
     - **201 Created**: Returns the created teacher with generated ID
     - **409 Conflict**: If email already exists
     - **404 Not Found**: If the assigned class doesn't exist
+    - **500 Internal Server Error**: Server-side errors
+
+- **`GET /teacher/{teacher_id}`**: Retrieves a teacher by ID.
+  - **Response**:
+    - **200 OK**: Returns the teacher data
+    - **404 Not Found**: If teacher doesn't exist
     - **500 Internal Server Error**: Server-side errors
 
 ### Classes
@@ -212,18 +219,29 @@ The backend exposes the following REST API endpoints:
 ### Attendance
 
 - **`POST /attendance/mark`**: Marks attendance for a student.
+
   - **Request Body**:
     ```json
     {
       "student_id": "student_object_id",
-      "time": 1724437035
-      "subject": "Maths"
-      "class": "class_object_id"
+      "class_id": "class_object_id"
     }
     ```
+  - **Note**: The `time` and `flag` fields are automatically set by the server
   - **Response**:
     - **201 Created**: Returns the attendance record with timestamp
     - **404 Not Found**: If student or class doesn't exist
+    - **500 Internal Server Error**: Server-side errors
+
+- **`GET /attendance/students/{student_id}`**: Retrieves attendance records for a specific student.
+
+  - **Response**:
+    - **200 OK**: Returns an array of attendance records
+    - **500 Internal Server Error**: Server-side errors
+
+- **`GET /attendance/classes/{class_id}`**: Retrieves attendance records for a specific class.
+  - **Response**:
+    - **200 OK**: Returns an array of attendance records
     - **500 Internal Server Error**: Server-side errors
 
 ---

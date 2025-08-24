@@ -65,7 +65,7 @@ pub async fn main() -> Result<(), ErrorType> {
         .route("/students/add", post(add_student))
         .route("/students/{student_id}", get(get_student))
         .route("/teacher/add", post(add_teacher))
-        .route("/teacher{teacher_id}", get(get_teacher))
+        .route("/teacher/{teacher_id}", get(get_teacher))
         .layer(Extension(app_state)); // Injects the application state into all routes.
 
     let address = SocketAddr::from(([127, 0, 0, 1], 3000)); // Defines the IP address and port explicitly.
