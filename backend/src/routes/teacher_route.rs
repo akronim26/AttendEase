@@ -3,8 +3,8 @@
 use crate::error::ErrorType;
 use crate::models::{class_model::Class, teacher_model::Teacher};
 use crate::state::AppState;
-use axum::{Extension, Json};
-use mongodb::Collection;
+use axum::{Extension, Json, extract::Path};
+use mongodb::{Collection, bson::oid::ObjectId};
 
 /// This function takes the application state and a JSON payload of a teacher as input,
 /// and inserts the teacher into the database. If the insertion is successful, the
@@ -30,8 +30,10 @@ pub async fn add_teacher(
     Extension(state): Extension<AppState>,
     mut teacher: Json<Teacher>,
 ) -> Result<Json<Teacher>, ErrorType> {
-    let teacher_collection: Collection<Teacher> =
-        state.db_client.database("attendance").collection("teacher");
+    let teacher_collection: Collection<Teacher> = state
+        .db_client
+        .database("attendance")
+        .collection("teachers");
 
     let mut new_teacher = teacher.0.clone();
     teacher.id = None;
@@ -79,5 +81,49 @@ pub async fn add_teacher(
             println!("Error inserting teacher: {:?}", err);
             Err(ErrorType::ServerError("Server Error".to_string()))
         }
+    }
+}
+
+/// This function takes the application state and a teacher ID as input,
+/// and searches the record for the teacher in the database. If the record is found, the
+/// JSON payload of teacher is returned.
+///
+/// # Arguments
+///
+/// * `state` - The application state, which contains the database client.
+/// * `teacher_id` - The ID of the teacher to search.
+///
+/// # Returns
+///
+/// A `Result` containing a JSON payload of the searched teacher on success,
+/// or an `ErrorType` on failure.
+///
+/// # Errors
+///
+/// This function will return an `ErrorType` if:
+/// * The teacher record is not found (`ErrorType::DoesNotExist`).
+/// * There is an error searching the teacher in the database (`ErrorType::ServerError`).
+pub async fn get_teacher(
+    Extension(state): Extension<AppState>,
+    Path(teacher_id): Path<ObjectId>,
+) -> Result<Json<Teacher>, ErrorType> {
+    let collection: Collection<Teacher> = state
+        .db_client
+        .database("attendance")
+        .collection("teachers");
+
+    let teacher_record = collection
+        .find_one(mongodb::bson::doc! { "_id": teacher_id })
+        .await
+        .map_err(|err| {
+            println!("Error checking for teacher id: {}", err);
+            ErrorType::ServerError("Server Error".to_string())
+        })?;
+
+    match teacher_record {
+        Some(record) => Ok(Json(record)),
+        None => Err(ErrorType::DoesNotExist(
+            "The teacher record is not found".to_string(),
+        )),
     }
 }

@@ -20,7 +20,7 @@ use crate::routes::{
     attendance_route::mark_attendance,
     class_route::{add_class, get_classes},
     student_route::{add_student, get_student},
-    teacher_route::add_teacher,
+    teacher_route::{add_teacher, get_teacher},
 };
 use crate::state::AppState;
 use axum::{
@@ -53,6 +53,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/students/add", post(add_student))
         .route("/students/{student_id}", get(get_student))
         .route("/teacher/add", post(add_teacher))
+        .route("/teacher{teacher_id}", get(get_teacher))
         .layer(Extension(app_state)); // Injects the application state into all routes.
 
     let address = SocketAddr::from(([127, 0, 0, 1], 3000)); // Defines the IP address and port explicitly.
