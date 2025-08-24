@@ -17,6 +17,8 @@ pub enum ErrorType {
     NegativeRollNumber(String),
     /// Returned for generic server errors.
     ServerError(String),
+    /// Returned for failure of server starting.
+    ServerStartingError(String),
 }
 
 impl IntoResponse for ErrorType {
@@ -26,6 +28,7 @@ impl IntoResponse for ErrorType {
             ErrorType::DoesNotExist(msg) => (StatusCode::NOT_FOUND, msg),
             ErrorType::NegativeRollNumber(msg) => (StatusCode::BAD_REQUEST, msg),
             ErrorType::ServerError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
+            ErrorType::ServerStartingError(msg) => (StatusCode::SERVICE_UNAVAILABLE, msg),
         };
 
         let body = serde_json::json!({

@@ -13,7 +13,7 @@ pub struct Attendance {
     /// The reference to Student
     pub student_id: ObjectId,
     /// The class for which attendance is being marked
-    pub class: Option<ObjectId>,
+    pub class_id: Option<ObjectId>,
     /// The time when attendance was marked
     /// The line below tells the serde how to deserialise the DateTime
     #[serde(with = "chrono::serde::ts_seconds")]

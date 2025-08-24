@@ -17,7 +17,7 @@ mod models {
 mod error;
 
 use crate::routes::{
-    attendance_route::mark_attendance,
+    attendance_route::{get_attendance_by_class, get_attendance_by_student, mark_attendance},
     class_route::{add_class, get_classes},
     student_route::{add_student, get_student},
     teacher_route::{add_teacher, get_teacher},
@@ -28,6 +28,7 @@ use axum::{
     routing::{get, post},
 };
 use dotenvy::dotenv;
+use error::ErrorType;
 use std::{net::SocketAddr, sync::Arc};
 use tokio::net::TcpListener;
 
@@ -35,10 +36,13 @@ use tokio::net::TcpListener;
 /// connecting to the database, creating the application state, and starting the
 /// HTTP server.
 #[tokio::main]
-pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub async fn main() -> Result<(), ErrorType> {
     dotenv().expect(".env does not exist");
 
-    let client = db::connect_to_database().await?;
+    let client = db::connect_to_database().await.map_err(|err| {
+        println!("Error starting the server: {}", err);
+        ErrorType::ServerStartingError("Server failed to start".to_string())
+    })?;
     let shared_client = Arc::new(client);
 
     let app_state = AppState {
@@ -48,6 +52,14 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
         .route("/", get(root_handler))
         .route("/attendance/mark", post(mark_attendance))
+        .route(
+            "/attendance/students/{student_id}",
+            get(get_attendance_by_student),
+        )
+        .route(
+            "/attendance/classes/{class_id}",
+            get(get_attendance_by_class),
+        )
         .route("/classes", get(get_classes))
         .route("/classes/add", post(add_class))
         .route("/students/add", post(add_student))
@@ -57,10 +69,18 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .layer(Extension(app_state)); // Injects the application state into all routes.
 
     let address = SocketAddr::from(([127, 0, 0, 1], 3000)); // Defines the IP address and port explicitly.
-    let listener = TcpListener::bind(address).await?; // Establishes the TCP listener to handle incoming requests.
-    println!("listening on {}", address);
+    let listener = TcpListener::bind(address).await.map_err(|err| {
+        println!("Error binding to address: {}", err);
+        ErrorType::ServerStartingError("Server failed to bind".to_string())
+    })?; // Establishes the TCP listener to handle incoming requests.
 
-    axum::serve(listener, app).await?; // Combines the router and the listener, and starts serving HTTP requests.
+    println!("listening on {}", address);
+    
+    axum::serve(listener, app).await.map_err(|err| {
+        println!("Error serving: {}", err);
+        ErrorType::ServerStartingError("Server failed to serve".to_string())
+    })?; // Combines the router and the listener, and starts serving HTTP requests.
+
 
     Ok(())
 }

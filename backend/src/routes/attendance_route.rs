@@ -4,9 +4,10 @@ use crate::models::attendance_model::Attendance;
 use crate::models::student_model::Student;
 use crate::state::AppState;
 use crate::{error::ErrorType, models::class_model::Class};
-use axum::{Extension, Json};
+use axum::{Extension, Json, extract::Path};
 use chrono::Utc;
-use mongodb::Collection;
+use mongodb::{Collection, bson::oid::ObjectId};
+use tokio_stream::StreamExt;
 
 /// This function takes the application state and a JSON payload of attendance as input,
 /// and marks the attendance of the student. If the process is successful, the
@@ -65,7 +66,7 @@ pub async fn mark_attendance(
     let class_collection: Collection<Class> =
         state.db_client.database("attendance").collection("classes");
 
-    let class_id = attendance_details.class.clone();
+    let class_id = attendance_details.class_id.clone();
 
     let class_exist = class_collection
         .find_one(mongodb::bson::doc! { "_id": &class_id })
@@ -91,4 +92,112 @@ pub async fn mark_attendance(
             Err(ErrorType::ServerError("Server Error".to_string()))
         }
     }
+}
+
+/// This function takes the application state and a student ID as input,
+/// and searches the record for the attendance for a student in the database.
+/// If the record is found, the JSON payload of student's attendance
+/// is returned.
+///
+/// # Arguments
+///
+/// * `state` - The application state, which contains the database client.
+/// * `student_id` - The ID of the student to search.
+///
+/// # Returns
+///
+/// A `Result` containing a JSON payload of the student's attendance on success,
+/// or an `ErrorType` on failure.
+///
+/// # Errors
+///
+/// This function will return an `ErrorType` if:
+/// * The student record is not found (`ErrorType::DoesNotExist`).
+/// * There is an error searching the student's attendance in the database (`ErrorType::ServerError`).
+pub async fn get_attendance_by_student(
+    Extension(state): Extension<AppState>,
+    Path(student_id): Path<ObjectId>,
+) -> Result<Json<Vec<Attendance>>, ErrorType> {
+    let collection: Collection<Attendance> =
+        state.db_client.database("attendance").collection("records");
+
+    let cursor_result = collection
+        .find(mongodb::bson::doc! {"student_id": student_id})
+        .await
+        .map_err(|err| {
+            println!("Error fetching the attendance: {}", err);
+            ErrorType::ServerError("Server Error".to_string())
+        });
+
+    let mut attendances = Vec::new();
+
+    match cursor_result {
+        Ok(mut cursor) => {
+            while let Ok(Some(attendance)) = cursor.try_next().await.map_err(|err| {
+                println!("Error fetching the attendance: {}", err);
+                ErrorType::ServerError("Server Error".to_string())
+            }) {
+                attendances.push(attendance);
+            }
+        }
+        Err(_) => {
+            println!("Error fetching the attendances");
+        }
+    };
+
+    Ok(Json(attendances))
+}
+
+/// This function takes the application state and a class ID as input,
+/// and searches the record for the attendance for a class in the database.
+/// If the record is found, the JSON payload of class' attendance
+/// is returned.
+///
+/// # Arguments
+///
+/// * `state` - The application state, which contains the database client.
+/// * `class_id` - The ID of the class to search.
+///
+/// # Returns
+///
+/// A `Result` containing a JSON payload of the class' attendance on success,
+/// or an `ErrorType` on failure.
+///
+/// # Errors
+///
+/// This function will return an `ErrorType` if:
+/// * The class record is not found (`ErrorType::DoesNotExist`).
+/// * There is an error searching the class attendance in the database (`ErrorType::ServerError`).
+pub async fn get_attendance_by_class(
+    Extension(state): Extension<AppState>,
+    Path(class_id): Path<ObjectId>,
+) -> Result<Json<Vec<Attendance>>, ErrorType> {
+    let collection: Collection<Attendance> =
+        state.db_client.database("attendance").collection("records");
+
+    let cursor_result = collection
+        .find(mongodb::bson::doc! {"class_id": class_id})
+        .await
+        .map_err(|err| {
+            println!("Error fetching the attendance: {}", err);
+            ErrorType::ServerError("Server Error".to_string())
+        });
+
+    let mut attendances = Vec::new();
+
+    match cursor_result {
+        Ok(mut cursor) => {
+            while let Ok(Some(attendance)) = cursor.try_next().await.map_err(|err| {
+                println!("Error fetching the attendance: {}", err);
+                ErrorType::ServerError("Server Error".to_string())
+            }) {
+                attendances.push(attendance);
+            }
+        }
+        Err(_) => {
+            println!("Error fetching the attendances");
+        }
+    };
+
+    Ok(Json(attendances))
 }

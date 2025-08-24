@@ -31,7 +31,10 @@ pub async fn get_classes(
     let cursor_result = class_collection
         .find(mongodb::bson::doc! {})
         .await
-        .map_err(|_| ErrorType::ServerError("Server Error".to_string()));
+        .map_err(|err| {
+            println!("Error fetching the classes: {}", err);
+            ErrorType::ServerError("Server Error".to_string())
+        });
 
     let mut classes = Vec::new();
     match cursor_result {
